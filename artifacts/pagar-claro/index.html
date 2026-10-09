@@ -37,57 +37,100 @@
         <p class="intro-copy">Revisa el precio en dólares frente al monto en bolívares que aparece en la etiqueta.</p>
       </section>
 
-      <form class="price-form" aria-label="Comparar precios">
+      <form id="price-form" class="price-form" aria-label="Comparar precios" novalidate>
         <div class="field">
           <label for="price-usd">Precio en $</label>
           <div class="input-wrap">
             <span class="currency" aria-hidden="true">$</span>
-            <input id="price-usd" name="price-usd" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en dólares" />
+            <input id="price-usd" name="price-usd" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en dólares" aria-describedby="price-usd-error" />
           </div>
+          <p class="field-error" id="price-usd-error" hidden></p>
         </div>
 
         <div class="field">
           <label for="price-ves">Precio en Bs de la etiqueta</label>
           <div class="input-wrap">
             <span class="currency" aria-hidden="true">Bs</span>
-            <input id="price-ves" name="price-ves" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en bolívares de la etiqueta" />
+            <input id="price-ves" name="price-ves" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en bolívares de la etiqueta" aria-describedby="price-ves-error" />
           </div>
+          <p class="field-error" id="price-ves-error" hidden></p>
         </div>
 
-        <button class="calculate" type="button">Calcular</button>
+        <button class="calculate" id="calculate-button" type="submit">Calcular</button>
+        <p class="form-message" id="form-message" role="alert" aria-live="polite" hidden></p>
       </form>
 
       <section class="result-card" aria-label="Resultado de la comparación">
-        <span class="result-symbol" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M5 7.5h14M5 16.5h14M8 5v5m8 4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="8" cy="12" r="2" fill="currentColor"/>
-            <circle cx="16" cy="12" r="2" fill="currentColor"/>
-          </svg>
-        </span>
-        <div>
-          <p class="result-title">Aquí aparecerá la comparación</p>
-          <p class="result-hint">Ingresa los dos precios para revisar la diferencia.</p>
+        <div class="result-empty" id="result-empty">
+          <span class="result-symbol" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 7.5h14M5 16.5h14M8 5v5m8 4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="8" cy="12" r="2" fill="currentColor"/>
+              <circle cx="16" cy="12" r="2" fill="currentColor"/>
+            </svg>
+          </span>
+          <div>
+            <p class="result-title">Aquí aparecerá la comparación</p>
+            <p class="result-hint">Ingresa los dos precios para revisar la diferencia.</p>
+          </div>
+        </div>
+
+        <div class="calculation-output" id="calculation-output" aria-live="polite" hidden>
+          <div class="implied-heading">
+            <p class="result-kicker">Tasa implícita del local</p>
+            <p class="implied-rate" id="implied-rate">—</p>
+            <span class="rate-badge" id="rate-badge">—</span>
+          </div>
+
+          <div class="benchmark-comparisons" aria-label="Diferencia frente a las tasas de referencia">
+            <div class="benchmark-row">
+              <span>Frente a BCV</span>
+              <strong id="bcv-difference">—</strong>
+            </div>
+            <div class="benchmark-row">
+              <span>Frente a euro BCV</span>
+              <strong id="euro-difference">—</strong>
+            </div>
+            <div class="benchmark-row">
+              <span>Frente a paralelo</span>
+              <strong id="parallel-difference">—</strong>
+            </div>
+          </div>
+
+          <p class="unit-note">La tasa euro BCV está expresada en Bs por euro; su comparación se muestra como referencia numérica.</p>
+
+          <div class="overpayment" id="overpayment">
+            <span class="overpayment-label" id="overpayment-label">Pagas de más que a BCV</span>
+            <strong class="overpayment-value" id="overpayment-value">—</strong>
+          </div>
         </div>
       </section>
 
       <footer class="rates" aria-label="Tasas diarias">
         <p class="rates-heading">Tasas de hoy</p>
+        <p class="rate-notice" id="rate-notice" role="status" aria-live="polite" hidden></p>
         <div class="rate-grid">
           <div class="rate">
             <span class="rate-name">BCV</span>
-            <span class="rate-value" aria-label="Sin valor disponible"></span>
+            <span class="rate-unit">Bs / $</span>
+            <span class="rate-value" id="rate-bcv">—</span>
+            <span class="rate-date" id="date-bcv">Consultando…</span>
           </div>
           <div class="rate">
             <span class="rate-name">Euro BCV</span>
-            <span class="rate-value" aria-label="Sin valor disponible"></span>
+            <span class="rate-unit">Bs / €</span>
+            <span class="rate-value" id="rate-euro">—</span>
+            <span class="rate-date" id="date-euro">Consultando…</span>
           </div>
           <div class="rate">
             <span class="rate-name">Paralelo</span>
-            <span class="rate-value" aria-label="Sin valor disponible"></span>
+            <span class="rate-unit">Bs / $</span>
+            <span class="rate-value" id="rate-parallel">—</span>
+            <span class="rate-date" id="date-parallel">Consultando…</span>
           </div>
         </div>
       </footer>
     </main>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

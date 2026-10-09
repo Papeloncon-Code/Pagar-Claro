@@ -1,0 +1,1 @@
+- [Pagar Claro product constraints](pagar-claro.md) — Keep the app in vanilla HTML/CSS/JS; euro BCV is Bs/€ and needs an explicit unit note when compared to Bs/$.

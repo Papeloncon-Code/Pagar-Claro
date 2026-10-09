@@ -19,6 +19,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -154,6 +155,19 @@ h1 {
   box-shadow: 0 0 0 3px rgba(15, 123, 95, 0.12);
 }
 
+.field input[aria-invalid="true"] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(200, 67, 43, 0.1);
+}
+
+.field-error {
+  margin: 6px 0 0;
+  color: var(--red);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
 .calculate {
   width: 100%;
   min-height: 52px;
@@ -172,6 +186,26 @@ h1 {
 .calculate:hover { background: var(--green-deep); }
 .calculate:active { transform: translateY(1px); }
 .calculate:focus-visible { outline: 3px solid rgba(15, 123, 95, 0.3); outline-offset: 3px; }
+.calculate:disabled { cursor: wait; opacity: 0.75; }
+
+.form-message {
+  margin: 13px 0 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.form-message.is-error {
+  background: #fff0ed;
+  color: var(--red);
+}
+
+.form-message.is-loading {
+  background: #fff8de;
+  color: #765900;
+}
 
 .result-card {
   min-height: 126px;
@@ -183,6 +217,13 @@ h1 {
   border: 1px dashed #cfddd4;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.62);
+}
+
+.result-empty {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .result-symbol {
@@ -211,6 +252,104 @@ h1 {
   font-size: 12px;
   line-height: 1.5;
 }
+
+.calculation-output { width: 100%; }
+
+.implied-heading {
+  padding: 2px 0 16px;
+  text-align: center;
+}
+
+.result-kicker {
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.implied-rate {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(25px, 7vw, 34px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.rate-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-top: 10px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green-deep);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.benchmark-comparisons {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.benchmark-row {
+  min-height: 42px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.benchmark-row + .benchmark-row { border-top: 1px solid var(--line); }
+.benchmark-row strong { color: var(--ink); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.benchmark-row strong.is-above { color: var(--red); }
+.benchmark-row strong.is-below { color: var(--green); }
+.benchmark-row strong.is-even { color: var(--muted); }
+
+.unit-note {
+  margin: 9px 1px 14px;
+  color: #73817a;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.overpayment {
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 11px;
+}
+
+.overpayment-label {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 750;
+}
+
+.overpayment-value {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.overpayment.is-overpayment { background: #fff0ed; color: var(--red); }
+.overpayment.is-saving { background: #eaf5ef; color: var(--green-deep); }
+.overpayment.is-even { background: #f0f4f1; color: var(--ink); }
 
 .rates {
   margin-top: 26px;
@@ -249,6 +388,15 @@ h1 {
   font-weight: 700;
 }
 
+.rate-unit {
+  display: block;
+  margin-top: 2px;
+  color: #8a9891;
+  font-size: 9px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
 .rate-value {
   display: block;
   min-height: 17px;
@@ -257,6 +405,33 @@ h1 {
   font-size: 13px;
   line-height: 1.3;
   font-weight: 800;
+}
+
+.rate-date {
+  display: block;
+  margin-top: 3px;
+  color: #84928b;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.rate-notice {
+  margin: -5px 0 13px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.rate-notice.is-loading {
+  background: #fff8de;
+  color: #765900;
+}
+
+.rate-notice.is-offline {
+  background: #fff4d5;
+  color: #6a5100;
 }
 
 .sr-only {
@@ -284,6 +459,8 @@ h1 {
   .rates { padding-right: 12px; padding-left: 12px; }
   .rate { padding: 0 8px; }
   .rate-name { font-size: 10px; }
+  .rate-date { font-size: 8px; }
+  .rate-value { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
