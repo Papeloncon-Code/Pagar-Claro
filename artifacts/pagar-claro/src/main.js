@@ -17,6 +17,13 @@ import {
   saveRemittance,
   saveStore,
 } from "./savedData.js";
+import {
+  PERIODS,
+  saveTodayPrice,
+  fetchAllPriceHistory,
+  computeVariation,
+  computeTotalVariation,
+} from "./priceHistory.js";
 
 const form = document.querySelector("#price-form");
 const usdInput = document.querySelector("#price-usd");
@@ -457,6 +464,241 @@ remittanceForm.addEventListener("submit", async (event) => {
 for (const button of document.querySelectorAll("[data-tab]")) {
   button.addEventListener("click", () => showScreen(button.dataset.tab));
 }
+
+/* ── Subió: price history ── */
+
+const subioForm = document.querySelector("#subio-form");
+const subioProductInput = document.querySelector("#subio-product");
+const subioStoreInput = document.querySelector("#subio-store");
+const subioUsdInput = document.querySelector("#subio-price-usd");
+const subioVesInput = document.querySelector("#subio-price-ves");
+const subioSubmit = document.querySelector("#subio-submit");
+const subioMessage = document.querySelector("#subio-message");
+
+let subioState = {
+  data: null,
+  selectedPeriod: 1,
+  loaded: false,
+};
+
+function showSubioMessage(message, kind = "error") {
+  subioMessage.textContent = message;
+  subioMessage.className = `form-message is-${kind}`;
+  subioMessage.hidden = !message;
+}
+
+function setSubioFieldError(input, errorId, message = "") {
+  const errorElement = document.querySelector(errorId);
+  input.setAttribute("aria-invalid", String(Boolean(message)));
+  errorElement.textContent = message;
+  errorElement.hidden = !message;
+}
+
+function variationClass(value) {
+  if (value > 0.01) return "is-above";
+  if (value < -0.01) return "is-below";
+  return "is-even";
+}
+
+function renderSubioHistory() {
+  const { data, selectedPeriod } = subioState;
+  const emptyEl = document.querySelector("#subio-empty");
+  const loadingEl = document.querySelector("#subio-loading");
+  const errorEl = document.querySelector("#subio-error");
+  const listEl = document.querySelector("#subio-product-list");
+  const totalCard = document.querySelector("#subio-total-card");
+  const noHistoryEl = document.querySelector("#subio-no-history");
+
+  loadingEl.hidden = true;
+  errorEl.hidden = true;
+  listEl.replaceChildren();
+
+  if (!data || !data.products || data.products.length === 0) {
+    emptyEl.hidden = false;
+    totalCard.hidden = true;
+    noHistoryEl.hidden = true;
+    return;
+  }
+
+  emptyEl.hidden = true;
+
+  const totalVar = computeTotalVariation(
+    data.prices,
+    data.products,
+    data.stores,
+    selectedPeriod,
+  );
+
+  if (totalVar) {
+    const usdEl = document.querySelector("#subio-total-usd");
+    const vesEl = document.querySelector("#subio-total-ves");
+    usdEl.textContent = formatSignedPercent(totalVar.varUsd);
+    vesEl.textContent = formatSignedPercent(totalVar.varVes);
+    usdEl.className = variationClass(totalVar.varUsd);
+    vesEl.className = variationClass(totalVar.varVes);
+    totalCard.hidden = false;
+    noHistoryEl.hidden = true;
+  } else {
+    totalCard.hidden = true;
+    noHistoryEl.hidden = false;
+  }
+
+  let anyRowShown = false;
+
+  for (const product of data.products) {
+    const productRows = document.createElement("article");
+    productRows.className = "subio-product-card";
+
+    const productHeader = document.createElement("h3");
+    productHeader.className = "subio-product-name";
+    productHeader.textContent = product.name;
+    productRows.append(productHeader);
+
+    let hasStoreData = false;
+
+    for (const store of data.stores) {
+      const variation = computeVariation(
+        data.prices,
+        product.id,
+        store.id,
+        selectedPeriod,
+      );
+
+      if (!variation) continue;
+      hasStoreData = true;
+      anyRowShown = true;
+
+      const row = document.createElement("div");
+      row.className = "subio-store-row";
+
+      const storeLabel = document.createElement("span");
+      storeLabel.className = "subio-store-label";
+      storeLabel.textContent = store.name;
+
+      const usdVar = document.createElement("strong");
+      usdVar.className = `subio-var-usd ${variationClass(variation.varUsd)}`;
+      usdVar.textContent = `$ ${formatSignedPercent(variation.varUsd)}`;
+
+      const vesVar = document.createElement("strong");
+      vesVar.className = `subio-var-ves ${variationClass(variation.varVes)}`;
+      vesVar.textContent = `Bs ${formatSignedPercent(variation.varVes)}`;
+
+      const pastDate = document.createElement("span");
+      pastDate.className = "subio-past-date";
+      pastDate.textContent = `vs ${formatRateDate(variation.pastDate)}`;
+
+      row.append(storeLabel, usdVar, vesVar, pastDate);
+      productRows.append(row);
+    }
+
+    if (!hasStoreData) {
+      const noData = document.createElement("p");
+      noData.className = "subio-store-no-data";
+      noData.textContent = "Aún no hay historial para este plazo";
+      productRows.append(noData);
+    }
+
+    listEl.append(productRows);
+  }
+
+  if (!anyRowShown && !totalVar) {
+    noHistoryEl.hidden = false;
+  }
+}
+
+async function loadSubioHistory() {
+  document.querySelector("#subio-loading").hidden = false;
+  document.querySelector("#subio-empty").hidden = true;
+  document.querySelector("#subio-error").hidden = true;
+  document.querySelector("#subio-product-list").replaceChildren();
+  document.querySelector("#subio-total-card").hidden = true;
+  document.querySelector("#subio-no-history").hidden = true;
+
+  try {
+    const data = await fetchAllPriceHistory();
+    subioState.data = data;
+    subioState.loaded = true;
+
+    const productDatalist = document.querySelector("#subio-product-options");
+    const storeDatalist = document.querySelector("#subio-store-options");
+    productDatalist.replaceChildren();
+    storeDatalist.replaceChildren();
+    for (const product of data.products) {
+      const opt = document.createElement("option");
+      opt.value = product.name;
+      productDatalist.append(opt);
+    }
+    for (const store of data.stores) {
+      const opt = document.createElement("option");
+      opt.value = store.name;
+      storeDatalist.append(opt);
+    }
+
+    renderSubioHistory();
+  } catch {
+    document.querySelector("#subio-loading").hidden = true;
+    document.querySelector("#subio-error").hidden = false;
+  }
+}
+
+for (const input of [subioProductInput, subioStoreInput, subioUsdInput, subioVesInput]) {
+  input.addEventListener("input", () => {
+    showSubioMessage("");
+  });
+}
+
+subioForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  showSubioMessage("");
+
+  const productName = subioProductInput.value.trim();
+  const storeName = subioStoreInput.value.trim();
+  const usd = parsePrice(subioUsdInput.value, "precio en dólares");
+  const ves = parsePrice(subioVesInput.value, "precio en bolívares");
+
+  setSubioFieldError(subioProductInput, "#subio-product-error", productName ? "" : "Ingresa el nombre del producto.");
+  setSubioFieldError(subioStoreInput, "#subio-store-error", storeName ? "" : "Ingresa el nombre de la tienda.");
+  setSubioFieldError(subioUsdInput, "#subio-price-usd-error", usd.ok ? "" : usd.message);
+  setSubioFieldError(subioVesInput, "#subio-price-ves-error", ves.ok ? "" : ves.message);
+
+  if (!productName || !storeName || !usd.ok || !ves.ok) return;
+
+  subioSubmit.disabled = true;
+  subioSubmit.textContent = "Guardando…";
+
+  try {
+    await saveTodayPrice({
+      productName,
+      storeName,
+      priceUsd: usd.value,
+      priceVes: ves.value,
+    });
+    showSubioMessage("Precio guardado para hoy.", "success");
+    subioForm.reset();
+    await loadSubioHistory();
+  } catch {
+    showSubioMessage("No se pudo guardar el precio. Revisa tu conexión e intenta de nuevo.");
+  } finally {
+    subioSubmit.disabled = false;
+    subioSubmit.textContent = "Guardar precio de hoy";
+  }
+});
+
+for (const button of document.querySelectorAll("[data-period]")) {
+  button.addEventListener("click", () => {
+    for (const btn of document.querySelectorAll("[data-period]")) {
+      btn.classList.toggle("is-active", btn === button);
+      btn.setAttribute("aria-selected", String(btn === button));
+    }
+    subioState.selectedPeriod = Number(button.dataset.period);
+    if (subioState.loaded) renderSubioHistory();
+  });
+}
+
+const subioTabButton = document.querySelector('[data-tab="subio"]');
+subioTabButton.addEventListener("click", () => {
+  if (!subioState.loaded) void loadSubioHistory();
+});
 
 renderSavedStores(readSavedStores());
 renderSavedRemittances(readSavedRemittances());

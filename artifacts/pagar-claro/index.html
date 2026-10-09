@@ -169,14 +169,91 @@
         <div class="screen-intro">
           <p class="eyebrow">Precios en el tiempo</p>
           <h1 id="subio-title">Subió</h1>
+          <p class="intro-copy">Guarda los precios de hoy y compara cuánto han subido o bajado.</p>
         </div>
-        <div class="coming-soon-card">
-          <span class="coming-soon-icon" aria-hidden="true">02</span>
-          <div>
-            <span class="status-pill">Próximamente</span>
-            <p>Podrás revisar qué productos han aumentado de precio.</p>
+
+        <form id="subio-form" class="price-form" aria-label="Guardar precio del día" novalidate>
+          <div class="field">
+            <label for="subio-product">Producto</label>
+            <div class="subio-input-wrap">
+              <input id="subio-product" name="subio-product" type="text" maxlength="80" autocomplete="off" placeholder="Ej.: Harina de maíz" aria-describedby="subio-product-error" list="subio-product-options" />
+              <datalist id="subio-product-options"></datalist>
+            </div>
+            <p class="field-error" id="subio-product-error" hidden></p>
           </div>
-        </div>
+          <div class="field">
+            <label for="subio-store">Tienda</label>
+            <div class="subio-input-wrap">
+              <input id="subio-store" name="subio-store" type="text" maxlength="80" autocomplete="off" placeholder="Ej.: Central Madeirense" aria-describedby="subio-store-error" list="subio-store-options" />
+              <datalist id="subio-store-options"></datalist>
+            </div>
+            <p class="field-error" id="subio-store-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="subio-price-usd">Precio en $</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">$</span>
+              <input id="subio-price-usd" name="subio-price-usd" type="text" inputmode="decimal" autocomplete="off" aria-describedby="subio-price-usd-error" />
+            </div>
+            <p class="field-error" id="subio-price-usd-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="subio-price-ves">Precio en Bs</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">Bs</span>
+              <input id="subio-price-ves" name="subio-price-ves" type="text" inputmode="decimal" autocomplete="off" aria-describedby="subio-price-ves-error" />
+            </div>
+            <p class="field-error" id="subio-price-ves-error" hidden></p>
+          </div>
+          <button class="calculate" id="subio-submit" type="submit">Guardar precio de hoy</button>
+          <p class="form-message" id="subio-message" role="alert" aria-live="polite" hidden></p>
+        </form>
+
+        <section class="subio-history-section" aria-labelledby="subio-history-title">
+          <div class="section-heading">
+            <h2 id="subio-history-title">Variación de precios</h2>
+          </div>
+
+          <div class="subio-period-selector" role="tablist" aria-label="Plazo de comparación">
+            <button class="subio-period is-active" type="button" data-period="1" role="tab" aria-selected="true">Día</button>
+            <button class="subio-period" type="button" data-period="7" role="tab" aria-selected="false">Semana</button>
+            <button class="subio-period" type="button" data-period="15" role="tab" aria-selected="false">Quincena</button>
+            <button class="subio-period" type="button" data-period="30" role="tab" aria-selected="false">Mes</button>
+          </div>
+
+          <div class="subio-total-card" id="subio-total-card" hidden>
+            <div class="subio-total-header">
+              <span class="subio-total-label">Total de la lista</span>
+              <span class="subio-total-date" id="subio-total-date"></span>
+            </div>
+            <div class="subio-total-grid">
+              <div class="subio-total-metric">
+                <span class="subio-currency">En dólares</span>
+                <strong id="subio-total-usd">—</strong>
+              </div>
+              <div class="subio-total-metric">
+                <span class="subio-currency">En bolívares</span>
+                <strong id="subio-total-ves">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="subio-empty" id="subio-empty">
+            <p>Aún no has guardado precios. Registra el primer precio para empezar a comparar.</p>
+          </div>
+
+          <div class="subio-loading" id="subio-loading" hidden>
+            <p>Cargando historial…</p>
+          </div>
+
+          <div class="subio-error" id="subio-error" hidden>
+            <p>No se pudo cargar el historial. Revisa tu conexión e intenta de nuevo.</p>
+          </div>
+
+          <div class="subio-product-list" id="subio-product-list"></div>
+
+          <p class="subio-no-history" id="subio-no-history" hidden>Aún no hay historial para este plazo</p>
+        </section>
       </section>
 
       <section class="app-screen" id="screen-enviar" data-screen="enviar" aria-labelledby="enviar-title" hidden>
