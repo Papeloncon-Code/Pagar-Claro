@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-20", "python-3.12", "web"]
 
 [deployment]
 router = "application"
@@ -21,3 +21,6 @@ timeoutMs = 20000
 
 [objectStorage]
 defaultBucketID = "replit-objstore-fee8240f-a5ab-40d5-bc1a-b4524c35b96a"
+
+[nix]
+channel = "stable-25_05"
