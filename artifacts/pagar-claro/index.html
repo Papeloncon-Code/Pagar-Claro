@@ -30,107 +30,316 @@
       </div>
     </header>
 
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">Compra con claridad</p>
-        <h1 id="page-title">Compara el precio antes de pagar</h1>
-        <p class="intro-copy">Revisa el precio en dólares frente al monto en bolívares que aparece en la etiqueta.</p>
+    <main id="main-content">
+      <section class="app-screen" id="screen-pagar" data-screen="pagar" aria-labelledby="page-title">
+        <section class="intro" aria-labelledby="page-title">
+          <p class="eyebrow">Compra con claridad</p>
+          <h1 id="page-title">Compara el precio antes de pagar</h1>
+          <p class="intro-copy">Revisa el precio en dólares frente al monto en bolívares que aparece en la etiqueta.</p>
+        </section>
+
+        <form id="price-form" class="price-form" aria-label="Comparar precios" novalidate>
+          <div class="field">
+            <label for="price-usd">Precio en $</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">$</span>
+              <input id="price-usd" name="price-usd" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en dólares" aria-describedby="price-usd-error" />
+            </div>
+            <p class="field-error" id="price-usd-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="price-ves">Precio en Bs de la etiqueta</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">Bs</span>
+              <input id="price-ves" name="price-ves" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en bolívares de la etiqueta" aria-describedby="price-ves-error" />
+            </div>
+            <p class="field-error" id="price-ves-error" hidden></p>
+          </div>
+
+          <button class="calculate" id="calculate-button" type="submit">Calcular</button>
+          <p class="form-message" id="form-message" role="alert" aria-live="polite" hidden></p>
+        </form>
+
+        <section class="result-card" aria-label="Resultado de la comparación">
+          <div class="result-empty" id="result-empty">
+            <span class="result-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 7.5h14M5 16.5h14M8 5v5m8 4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="8" cy="12" r="2" fill="currentColor"/>
+                <circle cx="16" cy="12" r="2" fill="currentColor"/>
+              </svg>
+            </span>
+            <div>
+              <p class="result-title">Aquí aparecerá la comparación</p>
+              <p class="result-hint">Ingresa los dos precios para revisar la diferencia.</p>
+            </div>
+          </div>
+
+          <div class="calculation-output" id="calculation-output" aria-live="polite" hidden>
+            <div class="implied-heading">
+              <p class="result-kicker">Tasa implícita del local</p>
+              <p class="implied-rate" id="implied-rate">—</p>
+              <span class="rate-badge" id="rate-badge">—</span>
+            </div>
+
+            <div class="benchmark-comparisons" aria-label="Diferencia frente a las tasas de referencia">
+              <div class="benchmark-row">
+                <span>Frente a BCV</span>
+                <strong id="bcv-difference">—</strong>
+              </div>
+              <div class="benchmark-row">
+                <span>Frente a euro BCV</span>
+                <strong id="euro-difference">—</strong>
+              </div>
+              <div class="benchmark-row">
+                <span>Frente a paralelo</span>
+                <strong id="parallel-difference">—</strong>
+              </div>
+            </div>
+
+            <p class="unit-note">La tasa euro BCV está expresada en Bs por euro; su comparación se muestra como referencia numérica.</p>
+
+            <div class="overpayment" id="overpayment">
+              <span class="overpayment-label" id="overpayment-label">Pagas de más que a BCV</span>
+              <strong class="overpayment-value" id="overpayment-value">—</strong>
+            </div>
+
+            <form class="save-place-form" id="save-place-form" novalidate>
+              <label for="place-name">Nombre del local</label>
+              <div class="save-place-row">
+                <input id="place-name" name="place-name" type="text" maxlength="80" autocomplete="organization" placeholder="Ej.: nombre del local" />
+                <button class="secondary-button" type="submit">Guardar este local</button>
+              </div>
+              <p class="form-message" id="place-message" role="status" aria-live="polite" hidden></p>
+            </form>
+          </div>
+        </section>
+
+        <section class="saved-section" aria-labelledby="saved-places-title">
+          <div class="section-heading">
+            <h2 id="saved-places-title">Locales guardados</h2>
+            <p>Se guardan solo en este navegador.</p>
+          </div>
+          <p class="saved-empty" id="saved-places-empty">Todavía no has guardado locales.</p>
+          <div class="saved-place-list" id="saved-places-list"></div>
+        </section>
+
+        <footer class="rates" aria-label="Tasas diarias">
+          <p class="rates-heading">Tasas de hoy</p>
+          <p class="rate-notice" id="rate-notice" role="status" aria-live="polite" hidden></p>
+          <div class="rate-grid">
+            <div class="rate">
+              <span class="rate-name">BCV</span>
+              <span class="rate-unit">Bs / $</span>
+              <span class="rate-value" id="rate-bcv" data-rate-value="bcv">—</span>
+              <span class="rate-date" id="date-bcv" data-rate-date="bcv">Consultando…</span>
+            </div>
+            <div class="rate">
+              <span class="rate-name">Euro BCV</span>
+              <span class="rate-unit">Bs / €</span>
+              <span class="rate-value" id="rate-euro" data-rate-value="euro">—</span>
+              <span class="rate-date" id="date-euro" data-rate-date="euro">Consultando…</span>
+            </div>
+            <div class="rate">
+              <span class="rate-name">Paralelo</span>
+              <span class="rate-unit">Bs / $</span>
+              <span class="rate-value" id="rate-parallel" data-rate-value="parallel">—</span>
+              <span class="rate-date" id="date-parallel" data-rate-date="parallel">Consultando…</span>
+            </div>
+          </div>
+        </footer>
       </section>
 
-      <form id="price-form" class="price-form" aria-label="Comparar precios" novalidate>
-        <div class="field">
-          <label for="price-usd">Precio en $</label>
-          <div class="input-wrap">
-            <span class="currency" aria-hidden="true">$</span>
-            <input id="price-usd" name="price-usd" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en dólares" aria-describedby="price-usd-error" />
-          </div>
-          <p class="field-error" id="price-usd-error" hidden></p>
+      <section class="app-screen" id="screen-compras" data-screen="compras" aria-labelledby="compras-title" hidden>
+        <div class="screen-intro">
+          <p class="eyebrow">Tu registro</p>
+          <h1 id="compras-title">Compras</h1>
         </div>
-
-        <div class="field">
-          <label for="price-ves">Precio en Bs de la etiqueta</label>
-          <div class="input-wrap">
-            <span class="currency" aria-hidden="true">Bs</span>
-            <input id="price-ves" name="price-ves" type="text" inputmode="decimal" autocomplete="off" aria-label="Precio en bolívares de la etiqueta" aria-describedby="price-ves-error" />
-          </div>
-          <p class="field-error" id="price-ves-error" hidden></p>
-        </div>
-
-        <button class="calculate" id="calculate-button" type="submit">Calcular</button>
-        <p class="form-message" id="form-message" role="alert" aria-live="polite" hidden></p>
-      </form>
-
-      <section class="result-card" aria-label="Resultado de la comparación">
-        <div class="result-empty" id="result-empty">
-          <span class="result-symbol" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 7.5h14M5 16.5h14M8 5v5m8 4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              <circle cx="8" cy="12" r="2" fill="currentColor"/>
-              <circle cx="16" cy="12" r="2" fill="currentColor"/>
-            </svg>
-          </span>
+        <div class="coming-soon-card">
+          <span class="coming-soon-icon" aria-hidden="true">01</span>
           <div>
-            <p class="result-title">Aquí aparecerá la comparación</p>
-            <p class="result-hint">Ingresa los dos precios para revisar la diferencia.</p>
-          </div>
-        </div>
-
-        <div class="calculation-output" id="calculation-output" aria-live="polite" hidden>
-          <div class="implied-heading">
-            <p class="result-kicker">Tasa implícita del local</p>
-            <p class="implied-rate" id="implied-rate">—</p>
-            <span class="rate-badge" id="rate-badge">—</span>
-          </div>
-
-          <div class="benchmark-comparisons" aria-label="Diferencia frente a las tasas de referencia">
-            <div class="benchmark-row">
-              <span>Frente a BCV</span>
-              <strong id="bcv-difference">—</strong>
-            </div>
-            <div class="benchmark-row">
-              <span>Frente a euro BCV</span>
-              <strong id="euro-difference">—</strong>
-            </div>
-            <div class="benchmark-row">
-              <span>Frente a paralelo</span>
-              <strong id="parallel-difference">—</strong>
-            </div>
-          </div>
-
-          <p class="unit-note">La tasa euro BCV está expresada en Bs por euro; su comparación se muestra como referencia numérica.</p>
-
-          <div class="overpayment" id="overpayment">
-            <span class="overpayment-label" id="overpayment-label">Pagas de más que a BCV</span>
-            <strong class="overpayment-value" id="overpayment-value">—</strong>
+            <span class="status-pill">Próximamente</span>
+            <p>Podrás registrar tus compras y consultar cuánto has gastado.</p>
           </div>
         </div>
       </section>
 
-      <footer class="rates" aria-label="Tasas diarias">
-        <p class="rates-heading">Tasas de hoy</p>
-        <p class="rate-notice" id="rate-notice" role="status" aria-live="polite" hidden></p>
-        <div class="rate-grid">
-          <div class="rate">
-            <span class="rate-name">BCV</span>
-            <span class="rate-unit">Bs / $</span>
-            <span class="rate-value" id="rate-bcv">—</span>
-            <span class="rate-date" id="date-bcv">Consultando…</span>
-          </div>
-          <div class="rate">
-            <span class="rate-name">Euro BCV</span>
-            <span class="rate-unit">Bs / €</span>
-            <span class="rate-value" id="rate-euro">—</span>
-            <span class="rate-date" id="date-euro">Consultando…</span>
-          </div>
-          <div class="rate">
-            <span class="rate-name">Paralelo</span>
-            <span class="rate-unit">Bs / $</span>
-            <span class="rate-value" id="rate-parallel">—</span>
-            <span class="rate-date" id="date-parallel">Consultando…</span>
+      <section class="app-screen" id="screen-subio" data-screen="subio" aria-labelledby="subio-title" hidden>
+        <div class="screen-intro">
+          <p class="eyebrow">Precios en el tiempo</p>
+          <h1 id="subio-title">Subió</h1>
+        </div>
+        <div class="coming-soon-card">
+          <span class="coming-soon-icon" aria-hidden="true">02</span>
+          <div>
+            <span class="status-pill">Próximamente</span>
+            <p>Podrás revisar qué productos han aumentado de precio.</p>
           </div>
         </div>
-      </footer>
+      </section>
+
+      <section class="app-screen" id="screen-enviar" data-screen="enviar" aria-labelledby="enviar-title" hidden>
+        <div class="screen-intro">
+          <p class="eyebrow">Compara antes de enviar</p>
+          <h1 id="enviar-title">Enviar dinero</h1>
+          <p class="intro-copy">Revisa cuánto llega y compáralo con lo que recibirías a tasa BCV por el costo total.</p>
+        </div>
+
+        <form id="remittance-form" class="price-form" aria-label="Comparar envío de dinero" novalidate>
+          <div class="field">
+            <label for="remittance-amount">Monto que envías en US$</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">$</span>
+              <input id="remittance-amount" name="amount" type="text" inputmode="decimal" autocomplete="off" aria-describedby="remittance-amount-error" />
+            </div>
+            <p class="field-error" id="remittance-amount-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="remittance-fee">Comisión en US$</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">$</span>
+              <input id="remittance-fee" name="fee" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="remittance-fee-error" />
+            </div>
+            <p class="field-error" id="remittance-fee-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="remittance-rate">Tasa del servicio en Bs por $1</label>
+            <div class="input-wrap">
+              <span class="currency" aria-hidden="true">Bs</span>
+              <input id="remittance-rate" name="rate" type="text" inputmode="decimal" autocomplete="off" aria-describedby="remittance-rate-error" />
+            </div>
+            <p class="field-error" id="remittance-rate-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="remittance-via">Vía</label>
+            <select id="remittance-via" name="via" aria-describedby="remittance-via-error">
+              <option value="">Selecciona una vía</option>
+              <option value="Remitly">Remitly</option>
+              <option value="Banco">Banco</option>
+              <option value="Cripto">Cripto</option>
+              <option value="Otra">Otra</option>
+            </select>
+            <p class="field-error" id="remittance-via-error" hidden></p>
+          </div>
+
+          <button class="calculate" id="remittance-submit" type="submit">Calcular y guardar esta vía</button>
+          <p class="form-message" id="remittance-message" role="status" aria-live="polite" hidden></p>
+        </form>
+
+        <section class="remittance-result" id="remittance-result" aria-label="Resultado del envío" aria-live="polite" hidden>
+          <p class="result-kicker">Resultado del envío</p>
+          <div class="remittance-result-grid">
+            <div class="remittance-metric">
+              <span>Bs que llegan</span>
+              <strong id="remittance-arrival">—</strong>
+            </div>
+            <div class="remittance-metric">
+              <span>Costo total</span>
+              <strong id="remittance-total">—</strong>
+            </div>
+            <div class="remittance-metric">
+              <span>A tasa BCV serían</span>
+              <strong id="remittance-bcv">—</strong>
+            </div>
+          </div>
+          <div class="remittance-difference" id="remittance-difference">
+            <span id="remittance-difference-label">Diferencia frente a BCV</span>
+            <strong id="remittance-difference-value">—</strong>
+          </div>
+        </section>
+
+        <section class="saved-section remittance-saved" aria-labelledby="saved-remittances-title">
+          <div class="section-heading">
+            <h2 id="saved-remittances-title">Vías guardadas para comparar</h2>
+            <p>Las comparaciones se guardan en este navegador.</p>
+          </div>
+          <p class="saved-empty" id="saved-remittances-empty">Cuando guardes una vía, aparecerá aquí.</p>
+          <div class="remittance-list" id="saved-remittances-list"></div>
+        </section>
+      </section>
+
+      <section class="app-screen" id="screen-mas" data-screen="mas" aria-labelledby="mas-title" hidden>
+        <div class="screen-intro">
+          <p class="eyebrow">Información</p>
+          <h1 id="mas-title">Más</h1>
+        </div>
+
+        <section class="more-rates-section" aria-labelledby="more-rates-title">
+          <h2 id="more-rates-title">Tasas de hoy</h2>
+          <p class="rate-notice" id="more-rate-notice" role="status" aria-live="polite" hidden></p>
+          <div class="more-rate-list">
+            <div class="more-rate-item">
+              <div>
+                <strong>BCV</strong>
+                <span>Bs por dólar</span>
+              </div>
+              <div class="more-rate-value">
+                <strong data-rate-value="bcv" id="more-rate-bcv">—</strong>
+                <span data-rate-date="bcv" id="more-date-bcv">Consultando…</span>
+              </div>
+            </div>
+            <div class="more-rate-item">
+              <div>
+                <strong>Euro BCV</strong>
+                <span>Bs por euro</span>
+              </div>
+              <div class="more-rate-value">
+                <strong data-rate-value="euro" id="more-rate-euro">—</strong>
+                <span data-rate-date="euro" id="more-date-euro">Consultando…</span>
+              </div>
+            </div>
+            <div class="more-rate-item">
+              <div>
+                <strong>Paralelo</strong>
+                <span>Bs por dólar</span>
+              </div>
+              <div class="more-rate-value">
+                <strong data-rate-value="parallel" id="more-rate-parallel">—</strong>
+                <span data-rate-date="parallel" id="more-date-parallel">Consultando…</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pro-card" aria-labelledby="pro-title">
+          <div class="pro-card-heading">
+            <div>
+              <p class="eyebrow">Más herramientas</p>
+              <h2 id="pro-title">Pro</h2>
+            </div>
+            <span class="status-pill">Próximamente</span>
+          </div>
+          <p>Las funciones Pro estarán disponibles más adelante.</p>
+        </section>
+      </section>
     </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-item is-active" type="button" data-tab="pagar" aria-current="page" aria-controls="screen-pagar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16M4 16.5h16M8 5v5m8 4v5"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/></svg>
+        <span>Pagar</span>
+      </button>
+      <button class="nav-item" type="button" data-tab="compras" aria-controls="screen-compras">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Zm4 0a3 3 0 0 1 6 0M9 12v1m6-1v1"/></svg>
+        <span>Compras</span>
+      </button>
+      <button class="nav-item" type="button" data-tab="subio" aria-controls="screen-subio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 16 5-5 3 3 6-7m-5 0h5v5"/></svg>
+        <span>Subió</span>
+      </button>
+      <button class="nav-item" type="button" data-tab="enviar" aria-controls="screen-enviar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+        <span>Enviar</span>
+      </button>
+      <button class="nav-item" type="button" data-tab="mas" aria-controls="screen-mas">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        <span>Más</span>
+      </button>
+    </nav>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

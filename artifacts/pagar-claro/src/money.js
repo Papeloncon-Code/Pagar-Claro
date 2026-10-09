@@ -7,7 +7,7 @@ const numberFormat = new Intl.NumberFormat("es-VE", {
  * Reads prices entered with either decimal comma or decimal point.
  * Also accepts Venezuelan (1.234,56) and US (1,234.56) grouping.
  */
-export function parsePrice(rawValue, label) {
+export function parsePrice(rawValue, label, { allowZero = false } = {}) {
   let value = String(rawValue ?? "").trim().replace(/\s/g, "");
 
   if (!value) {
@@ -69,7 +69,7 @@ export function parsePrice(rawValue, label) {
   if (!Number.isFinite(number)) {
     return { ok: false, message: "Ingresa un precio válido." };
   }
-  if (number <= 0) {
+  if (number < 0 || (number === 0 && !allowZero)) {
     return { ok: false, message: "El precio debe ser mayor que cero." };
   }
 
