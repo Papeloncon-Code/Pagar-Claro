@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Pagar Claro"
+description = "Aplicación web sencilla para que compradores en Venezuela puedan comparar el precio en dólares y bolívares de una etiqueta. Esta primera versión presenta la interfaz móvil sin cálculos ni consulta de tasas."
+version = "1.0.0"
+id = "artifacts/pagar-claro"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18194
+
+[services.development]
+run = "pnpm --filter @workspace/pagar-claro run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pagar-claro", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/pagar-claro/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18194"
+BASE_PATH = "/"
